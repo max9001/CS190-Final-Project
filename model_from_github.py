@@ -13,7 +13,7 @@ from torch.optim.lr_scheduler import StepLR
 import torch.nn.utils.prune as prune
 
 class Argument():
-    def __init__(self, batch_size=64, test_batch_size=1000,epochs=14, lr=1.0,
+    def __init__(self, batch_size=64, test_batch_size=1000,epochs=1, lr=1.0,
                 gamma=0.7,no_cuda=False, log_interval=100,save_model=False):
         
         self.batch_size = batch_size
@@ -110,39 +110,43 @@ def main():
 
 
     # ------- define the pruning method ------------------
-    pruning_percentage = 0.20
     pruning_method = prune.L1Unstructured
 
-    print(model.conv1.weight[:8, :4])
-    print(model.conv2.weight[:8, :4])
-    print(model.dropout1.weight[:8, :4])
-    print(model.dropout2.weight[:8, :4])
+    parameters_to_prune = [
+        (model.conv1, 'weight'),
+        (model.conv2, 'weight'),
+        (model.fc1, 'weight'),
+        (model.fc2, 'weight')
+    ]
+
+    prune.global_unstructured(
+        parameters_to_prune,
+        pruning_method,
+        amount=0.50,
+    )
+
+    print(model.conv1.weight[:8, :4, :1,])
+    print(model.conv2.weight[:8, :4, :1,])
     print(model.fc1.weight[:8, :4])
     print(model.fc2.weight[:8, :4])
-
-    # parameters_to_prune = [
-    #     (model.conv1, 'weight'),
-    #     (model.conv2, 'weight'),
-    #     (model.dropout1, 'weight'),
-    #     (model.dropout2, 'weight'),
-    #     (model.fc1, 'weight'),
-    #     (model.fc2, 'weight')
-    # ]
-
-
 
 
 
 
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
-    # scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
-    # for epoch in range(1, args.epochs + 1):
-    #     train(args, model, device, train_loader, optimizer, epoch)
-    #     test(args, model, device, test_loader)
-    #     scheduler.step()
+    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    for epoch in range(1, args.epochs + 1):
+        train(args, model, device, train_loader, optimizer, epoch)
+        test(args, model, device, test_loader)
+        scheduler.step()
 
-    # if args.save_model:
-    #     torch.save(model.state_dict(), "mnist_cnn.pt")
+    print(model.conv1.weight[:8, :4, :1,])
+    print(model.conv2.weight[:8, :4, :1,])
+    print(model.fc1.weight[:8, :4])
+    print(model.fc2.weight[:8, :4])
+
+    if args.save_model:
+        torch.save(model.state_dict(), "mnist_cnn.pt")
 
 main()
