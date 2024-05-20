@@ -23,7 +23,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=test_batch_size, sh
 
 # use (adapted) LeNet model used earlier in this notebook
 class LeNet(torch.nn.Module):
-    def __init__(self):
+    def __inDropout2dit__(self):
         super(LeNet, self).__init__()
         self.conv1 = torch.nn.Conv2d(1, 6, 5)
         self.conv2 = torch.nn.Conv2d(6, 16, 5)
