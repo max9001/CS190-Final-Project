@@ -5,7 +5,7 @@
 
 ### Objective: Investigate whether utilizing a post-training pruning scheme as a pre-training scheme on the same model architecture but with different training data can enhance performance and efficiency in deep neural network training.
 
-- [x] 1) train net model to desired accuracy
+- [x] 1) train net model to desired accuracy (99%)
 - [ ] 2) next, find a suitable pruning method for net models AFTER training
     - [ ] what is the highest sparsity we can reach and still acheive 98% accuracy?
     - [ ] once achieved, save at what indices we pruned.
