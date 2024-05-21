@@ -13,8 +13,8 @@ from torch.optim.lr_scheduler import StepLR
 import torch.nn.utils.prune as prune
 
 class Argument():
-    def __init__(self, batch_size=64, test_batch_size=1000,epochs=1, lr=1.0,
-                gamma=0.7,no_cuda=False, log_interval=100,save_model=False):
+    def __init__(self, batch_size=64, test_batch_size=1000,epochs=14, lr=1.0,
+                gamma=0.7,no_cuda=False, log_interval=100,save_model=True):
         
         self.batch_size = batch_size
         self.test_batch_size = test_batch_size
@@ -107,28 +107,32 @@ def main():
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
     model = Net().to(device)
+    file = "mnist_cnn.pt"
+    model.load_state_dict(torch.load(file, map_location=device))
+    # this will automatically load the file and load the parameters into the model.
+
 
 
     # ------- define the pruning method ------------------
-    pruning_method = prune.L1Unstructured
+    # pruning_method = prune.L1Unstructured
 
-    parameters_to_prune = [
-        (model.conv1, 'weight'),
-        (model.conv2, 'weight'),
-        (model.fc1, 'weight'),
-        (model.fc2, 'weight')
-    ]
+    # parameters_to_prune = [
+    #     (model.conv1, 'weight'),
+    #     (model.conv2, 'weight'),
+    #     (model.fc1, 'weight'),
+    #     (model.fc2, 'weight')
+    # ]
 
-    prune.global_unstructured(
-        parameters_to_prune,
-        pruning_method,
-        amount=0.50,
-    )
+    # prune.global_unstructured(
+    #     parameters_to_prune,
+    #     pruning_method,
+    #     amount=0.50,
+    # )
 
-    print(model.conv1.weight[:8, :4, :1,])
-    print(model.conv2.weight[:8, :4, :1,])
-    print(model.fc1.weight[:8, :4])
-    print(model.fc2.weight[:8, :4])
+    # print(model.conv1.weight[:8, :4, :1,])
+    # print(model.conv2.weight[:8, :4, :1,])
+    # print(model.fc1.weight[:8, :4])
+    # print(model.fc2.weight[:8, :4])
 
 
 
@@ -137,14 +141,14 @@ def main():
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
-        train(args, model, device, train_loader, optimizer, epoch)
+        # train(args, model, device, train_loader, optimizer, epoch)
         test(args, model, device, test_loader)
         scheduler.step()
 
-    print(model.conv1.weight[:8, :4, :1,])
-    print(model.conv2.weight[:8, :4, :1,])
-    print(model.fc1.weight[:8, :4])
-    print(model.fc2.weight[:8, :4])
+    # print(model.conv1.weight[:8, :4, :1,])
+    # print(model.conv2.weight[:8, :4, :1,])
+    # print(model.fc1.weight[:8, :4])
+    # print(model.fc2.weight[:8, :4])
 
     if args.save_model:
         torch.save(model.state_dict(), "mnist_cnn.pt")
