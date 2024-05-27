@@ -1,6 +1,7 @@
-#source https://github.com/pytorch/examples/blob/master/mnist/main.py
-
 from __future__ import print_function
+
+import torch
+import csv
 import argparse
 import torch
 import torch.nn as nn
@@ -8,13 +9,16 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
+import random
+
 
 #import pruning method
 import torch.nn.utils.prune as prune
+import csv
 
 class Argument():
     def __init__(self, batch_size=64, test_batch_size=1000,epochs=14, lr=1.0,
-                gamma=0.7,no_cuda=False, log_interval=100,save_model=True):
+                gamma=0.7,no_cuda=False, log_interval=100,save_model=False):
         
         self.batch_size = batch_size
         self.test_batch_size = test_batch_size
@@ -83,6 +87,7 @@ def test(args, model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
 
+
 def main():
 
 
@@ -107,50 +112,49 @@ def main():
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
     model = Net().to(device)
-    file = "mnist_cnn.pt"
-    model.load_state_dict(torch.load(file, map_location=device))
-    # this will automatically load the file and load the parameters into the model.
+
+    parameters_to_prune = [
+    (model.conv1, 'weight'),
+    (model.conv2, 'weight'),
+    (model.fc1, 'weight'),
+    (model.fc2, 'weight')
+    ]
 
 
-
-    # ------- define the pruning method ------------------
-    # pruning_method = prune.L1Unstructured
-
-    # parameters_to_prune = [
-    #     (model.conv1, 'weight'),
-    #     (model.conv2, 'weight'),
-    #     (model.fc1, 'weight'),
-    #     (model.fc2, 'weight')
-    # ]
-
-    # prune.global_unstructured(
-    #     parameters_to_prune,
-    #     pruning_method,
-    #     amount=0.50,
-    # )
+    for module, param_name in parameters_to_prune:
+        prune.random_unstructured(module, name=param_name, amount=0.975)
 
     # print(model.conv1.weight[:8, :4, :1,])
     # print(model.conv2.weight[:8, :4, :1,])
-    # print(model.fc1.weight[:8, :4])
-    # print(model.fc2.weight[:8, :4])
+    # print(model.fc1.weight[:8, :8])
+    # print(model.fc2.weight[:8, :8])
 
 
-
+    sparsity = 100. * float(
+        torch.sum(model.conv1.weight == 0)
+        + torch.sum(model.conv2.weight == 0)
+        + torch.sum(model.fc1.weight == 0)
+        + torch.sum(model.fc2.weight == 0)
+    ) / float(
+        model.conv1.weight.nelement()
+        + model.conv2.weight.nelement()
+        + model.fc1.weight.nelement()
+        + model.fc2.weight.nelement()
+    )
+    
+    print(sparsity)
 
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+
     for epoch in range(1, args.epochs + 1):
-        # train(args, model, device, train_loader, optimizer, epoch)
+        train(args, model, device, train_loader, optimizer, epoch)
         test(args, model, device, test_loader)
         scheduler.step()
 
-    # print(model.conv1.weight[:8, :4, :1,])
-    # print(model.conv2.weight[:8, :4, :1,])
-    # print(model.fc1.weight[:8, :4])
-    # print(model.fc2.weight[:8, :4])
-
-    if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
+    # if args.save_model:
+    #     torch.save(model.state_dict(), "mnist_cnn.pt")
 
 main()
+
