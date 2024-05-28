@@ -1,19 +1,22 @@
+### Accuracy Results at 97.5% Sparsity
 
-# Todo:
+**Note**: Specific pruning was derived from post-training pruning of a model (magnitude-based global pruning) originally trained on MNIST, which had an accuracy of **96%**.
 
-### Research Question: Does utilizing a post-training pruning scheme from one model as a pre-training scheme on the same model architecture trained on different data facilitate or hinder performance improvement and efficiency gains in deep neural network training?
+![Data Visualization](data_vis.png)
 
-### Objective: Investigate whether utilizing a post-training pruning scheme as a pre-training scheme on the same model architecture but with different training data can enhance performance and efficiency in deep neural network training.
+| Dataset       | Pruning at Init Accuracy (from MNIST post-training) | Random Pruning at Init Accuracy |
+|---------------|------------------------------------------------------|-------------------------|
+| MNIST         | 99.23%                                               | 90.19%                  |
+| FashionMNIST  | 92.48%                                               | 78.04%                  |
 
-- [x] 1) train net model to desired accuracy (99%)
-- [ ] 2) next, find a suitable pruning method for net models AFTER training
-    - [ ] what is the highest sparsity we can reach and still acheive 96% accuracy?
-    - [ ] once achieved, save at what indices we pruned.
-- [ ] 3) before training, apply the pruning scheme from step 2. then train. Do we see a similar level of accuracy? 
-- [ ] 4) before training, apply random pruning of the same sparsity level and train. is difference of accuracies in step 3 and 4 significant?
-- [ ] 5) If we do, research further. If not, what may have caused this to not work?
 
-### --------------------------------------------------------------------
 
-- [ ] 5) repeat step 3, but train on MNIST instead of FashionMNIST
-- [ ] 6) Is the accuracy acceptable?
+## Analysis
+
+### Reusing Pruning Scheme vs Random Pruning
+- Pruning at initilization with a specific pruning scheme (derived from post-training pruning) retains higher accuracy compared to random pruning at the same sparsity level.
+- This suggests that structured pruning based on learned weights is more effective than random pruning for retaining model performance.
+
+### Cross-Dataset Generalization
+- The model retains a reasonable level of performance when applying the MNIST-derived pruning scheme to FashionMNIST, indicating some level of cross-dataset generalization.
+
