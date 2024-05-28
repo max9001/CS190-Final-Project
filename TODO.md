@@ -16,3 +16,17 @@
 
 - [x] 5) repeat step 3, but train on FashionMNIST instead of MNIST
 - [x] 6) Is the accuracy acceptable?
+
+### --------------------------------------------------------------------
+
+- [ ] Is our model design flawed (nervous about fc1 layer)
+
+- [ ] explore convergence rates of model
+  - [ ] does our model's loss and/or accuracy converge faster using our pruning scheme vs random pruning?
+
+- [ ] explore using structured pruning
+  - [ ] utilize HPC3's A100 GPU(s) to see if any performance increases utilizing 2:4 pruning
+  - [ ] measure time taken to train on few epochs + obtain pruning indices + train different model with pruning applied at init on all epochs
+  - [ ] measure time taken to train on all epochs with no pruning
+    - [ ] which is faster?
+ 
