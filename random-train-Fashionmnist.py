@@ -1,6 +1,7 @@
-#source https://github.com/pytorch/examples/blob/master/mnist/main.py
-
 from __future__ import print_function
+
+import torch
+import csv
 import argparse
 import torch
 import torch.nn as nn
@@ -8,10 +9,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
+import random
+
 
 #import pruning method
 import torch.nn.utils.prune as prune
 import csv
+
 class Argument():
     def __init__(self, batch_size=64, test_batch_size=1000,epochs=14, lr=1.0,
                 gamma=0.7,no_cuda=False, log_interval=100,save_model=False):
@@ -83,6 +87,7 @@ def test(args, model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
 
+
 def main():
 
 
@@ -93,41 +98,31 @@ def main():
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
     train_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('../data', train=True, download=True,
+        datasets.FashionMNIST('../data', train=True, download=True,
                        transform=transforms.Compose([
                            transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))
                        ])),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('../data', train=False, transform=transforms.Compose([
+        datasets.FashionMNIST('../data', train=False, transform=transforms.Compose([
                            transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))
                        ])),
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
     model = Net().to(device)
-    file = "mnist_cnn.pt"
-    model.load_state_dict(torch.load(file, map_location=device))
-    # this will automatically load the file and load the parameters into the model.
-
-
-
-    # ------- define the pruning method ------------------
-    pruning_method = prune.L1Unstructured
 
     parameters_to_prune = [
-        (model.conv1, 'weight'),
-        (model.conv2, 'weight'),
-        (model.fc1, 'weight'),
-        (model.fc2, 'weight')
+    (model.conv1, 'weight'),
+    (model.conv2, 'weight'),
+    (model.fc1, 'weight'),
+    (model.fc2, 'weight')
     ]
 
-    prune.global_unstructured(
-        parameters_to_prune,
-        pruning_method,
-        amount=0.975,
-    )
+
+    for module, param_name in parameters_to_prune:
+        prune.random_unstructured(module, name=param_name, amount=0.975)
 
     # print(model.conv1.weight[:8, :4, :1,])
     # print(model.conv2.weight[:8, :4, :1,])
@@ -146,37 +141,20 @@ def main():
         + model.fc1.weight.nelement()
         + model.fc2.weight.nelement()
     )
-
+    
     print(sparsity)
 
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
-    test(args, model, device, test_loader)
-
-    exit()
-
-    zero_indices = {}
-    for name, module in model.named_modules():
-        if hasattr(module, 'weight'):
-            zero_indices[name] = torch.nonzero(module.weight == 0, as_tuple=False).cpu().numpy()
-
-    # Save indices to a CSV file
-    with open('zero_indices.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Layer', 'Index'])  # Header
-        for layer_name, indices in zero_indices.items():
-            for index in indices:
-                writer.writerow([layer_name] + index.tolist())
-    
-
-    # for epoch in range(1, args.epochs + 1):
-    #     # train(args, model, device, train_loader, optimizer, epoch)
-    #     test(args, model, device, test_loader)
-    #     scheduler.step()
+    for epoch in range(1, args.epochs + 1):
+        train(args, model, device, train_loader, optimizer, epoch)
+        test(args, model, device, test_loader)
+        scheduler.step()
 
     # if args.save_model:
     #     torch.save(model.state_dict(), "mnist_cnn.pt")
 
 main()
+

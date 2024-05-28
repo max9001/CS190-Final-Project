@@ -7,7 +7,7 @@
 
 - [x] 1) train net model to desired accuracy (99%)
 - [ ] 2) next, find a suitable pruning method for net models AFTER training
-    - [ ] what is the highest sparsity we can reach and still acheive 98% accuracy?
+    - [ ] what is the highest sparsity we can reach and still acheive 96% accuracy?
     - [ ] once achieved, save at what indices we pruned.
 - [ ] 3) before training, apply the pruning scheme from step 2. then train. Do we see a similar level of accuracy? 
 - [ ] 4) before training, apply random pruning of the same sparsity level and train. is difference of accuracies in step 3 and 4 significant?
