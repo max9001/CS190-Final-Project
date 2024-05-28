@@ -1,6 +1,6 @@
 ### Accuracy Results at 97.5% Sparsity
 
-**Note**: Specific pruning was derived from post-training pruning of a model (magnitude-based global pruning) originally trained on MNIST, which had an accuracy of **96%**.
+**Note**: Specific pruning was derived from post-training pruning of a model (magnitude-based global pruning) originally trained on MNIST, which had an accuracy of **99%** before pruning, & **96%** after.
 
 ![Data Visualization](data_vis.png)
 
