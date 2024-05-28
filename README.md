@@ -1,4 +1,7 @@
-### Accuracy Results at 97.5% Sparsity
+# Research Question: 
+Does utilizing a post-training pruning scheme, such as global magnitude-based pruning, from a model trained on one dataset as a pruning scheme at initialization on the same model architecture but with different training data improve classification accuracy compared to random pruning? 
+
+## Accuracy Results at 97.5% Sparsity
 
 **Note**: Specific pruning was derived from post-training pruning of a model (magnitude-based global pruning) originally trained on MNIST, which had an accuracy of **99%** before pruning, & **96%** after.
 
