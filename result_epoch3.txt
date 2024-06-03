@@ -409,3 +409,22 @@ Train Epoch: 14 [51200/60000 (85%)]     Loss: 0.028999
 Train Epoch: 14 [57600/60000 (96%)]     Loss: 0.021147
 
 Test set: Average loss: 0.0279, Accuracy: 9920/10000 (99%)
+
+
+
+
+
+
+================================
+TEST AT 92 SPARSITY
+================================
+
+python3 train-prune.py 
+91.99998666275441
+/home/max/.local/lib/python3.8/site-packages/torch/nn/functional.py:1331: UserWarning: dropout2d: Received a 2-D input to dropout2d, which is deprecated and will result in an error in a future release. To retain the behavior and silence this warning, please use dropout instead. Note that dropout2d exists to provide channel-wise dropout on inputs with 2 spatial dimensions, a channel dimension, and an optional batch dimension (i.e. 3D or 4D inputs).
+  warnings.warn(warn_msg)
+
+Test set: Average loss: 0.0450, Accuracy: 9850/10000 (98%)
+
+
+=====================================

@@ -24,7 +24,7 @@
 # bars = plt.bar(layer_names, counts, color='blue')
 
 # for bar, count in zip(bars, counts):
-#     yval = bar.get_height()
+#     yvalprint(f"The percentage difference between the two CSV files is {percentage_diff:.2f}%") = bar.get_height()
 #     plt.text(bar.get_x() + bar.get_width() / 2, yval + 5, count, ha='center', va='bottom')
 
 # plt.xlabel('Layer')

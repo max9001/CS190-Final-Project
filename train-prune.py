@@ -110,12 +110,14 @@ def main():
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
-    for epoch in range(1, args.epochs + 1):
-        train(args, model, device, train_loader, optimizer, epoch)
-        test(args, model, device, test_loader)
-        scheduler.step()
-    # file = "mnist_cnn.pt"
-    # model.load_state_dict(torch.load(file, map_location=device))
+    # for epoch in range(1, args.epochs + 1):
+    #     train(args, model, device, train_loader, optimizer, epoch)
+    #     test(args, model, device, test_loader)
+    #     scheduler.step()
+    
+    
+    file = "mnist_cnn.pt"
+    model.load_state_dict(torch.load(file, map_location=device))
     # this will automatically load the file and load the parameters into the model.
 
 
@@ -133,7 +135,7 @@ def main():
     prune.global_unstructured(
         parameters_to_prune,
         pruning_method,
-        amount=0.975,
+        amount=0.92,
     )
 
     # print(model.conv1.weight[:8, :4, :1,])
