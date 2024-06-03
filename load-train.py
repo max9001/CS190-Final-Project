@@ -15,7 +15,7 @@ import torch.nn.utils.prune as prune
 import csv
 
 class Argument():
-    def __init__(self, batch_size=64, test_batch_size=1000,epochs=3, lr=1.0,
+    def __init__(self, batch_size=64, test_batch_size=1000,epochs=14, lr=1.0,
                 gamma=0.7,no_cuda=False, log_interval=100,save_model=False):
         
         self.batch_size = batch_size
