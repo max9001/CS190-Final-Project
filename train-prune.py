@@ -13,7 +13,7 @@ from torch.optim.lr_scheduler import StepLR
 import torch.nn.utils.prune as prune
 import csv
 class Argument():
-    def __init__(self, batch_size=64, test_batch_size=1000,epochs=14, lr=1.0,
+    def __init__(self, batch_size=64, test_batch_size=1000,epochs=3, lr=1.0,
                 gamma=0.7,no_cuda=False, log_interval=100,save_model=False):
         
         self.batch_size = batch_size
@@ -107,8 +107,15 @@ def main():
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
     model = Net().to(device)
-    file = "mnist_cnn.pt"
-    model.load_state_dict(torch.load(file, map_location=device))
+    optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+
+    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    for epoch in range(1, args.epochs + 1):
+        train(args, model, device, train_loader, optimizer, epoch)
+        test(args, model, device, test_loader)
+        scheduler.step()
+    # file = "mnist_cnn.pt"
+    # model.load_state_dict(torch.load(file, map_location=device))
     # this will automatically load the file and load the parameters into the model.
 
 
@@ -149,13 +156,10 @@ def main():
 
     print(sparsity)
 
-    optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
-
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+   
 
     test(args, model, device, test_loader)
 
-    exit()
 
     zero_indices = {}
     for name, module in model.named_modules():
@@ -171,10 +175,7 @@ def main():
                 writer.writerow([layer_name] + index.tolist())
     
 
-    # for epoch in range(1, args.epochs + 1):
-    #     # train(args, model, device, train_loader, optimizer, epoch)
-    #     test(args, model, device, test_loader)
-    #     scheduler.step()
+    
 
     # if args.save_model:
     #     torch.save(model.state_dict(), "mnist_cnn.pt")
