@@ -1,63 +1,44 @@
-import pandas as pd
-import random
 import csv
+from operator import itemgetter
 
-def generate_dummy_csv(file_name, num_rows):
-    layers = ['conv1', 'conv2', 'fc1', 'fc2']
-    with open(file_name, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Layer', 'Index1', 'Index2', 'Index3'])  # Adjust based on your data structure
-        for _ in range(num_rows):
-            layer = random.choice(layers)
-            index1 = random.randint(0, 99)
-            index2 = random.randint(0, 99)
-            index3 = random.randint(0, 99)
-            writer.writerow([layer, index1, index2, index3])
+def load_csv(file_path):
+    """Load CSV file into a list of dictionaries."""
+    data = []
+    with open(file_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(row)
+    return data
 
-# Generate two dummy CSV files
-generate_dummy_csv('zero_indices_1.csv', 1000)
-generate_dummy_csv('zero_indices_2.csv', 1000)
+def sort_data(data):
+    """Sort data based on a key combining all columns."""
+    return sorted(data, key=itemgetter('layer_type', 'output_size', 'parameters', 'accuracy'))
 
-# The compare_pruning_schemes function from previous code
-def compare_pruning_schemes(csv_file_1, csv_file_2):
-    def load_pruned_indices(csv_file):
-        pruned_indices = set()
-        chunk_size = 10000  # Adjust chunk size as needed
-        for chunk in pd.read_csv(csv_file, chunksize=chunk_size):
-            for _, row in chunk.iterrows():
-                layer_name = row['Layer']
-                if row[1:].isnull().any():
-                    continue
-                index = tuple(map(int, row[1:]))
-                pruned_indices.add((layer_name, index))
-        return pruned_indices
-
-    # Load the pruned indices from both CSV files
-    pruned_indices_1 = load_pruned_indices(csv_file_1)
-    pruned_indices_2 = load_pruned_indices(csv_file_2)
+def calculate_percentage_difference(csv1, csv2):
+    """Calculate the percentage difference between two CSV files."""
+    sorted_csv1 = sort_data(csv1)
+    sorted_csv2 = sort_data(csv2)
     
-    # Debugging: print the number of loaded indices
-    print(f"Total pruned indices in CSV 1: {len(pruned_indices_1)}")
-    print(f"Total pruned indices in CSV 2: {len(pruned_indices_2)}")
+    differences = []
+    for row1, row2 in zip(sorted_csv1, sorted_csv2):
+        diff = abs(float(row1['accuracy']) - float(row2['accuracy']))
+        differences.append(diff)
     
-    # Find the common pruned indices
-    common_pruned_indices = pruned_indices_1.intersection(pruned_indices_2)
+    total_diff = sum(differences)
+    average_diff = total_diff / len(differences)
+    percentage_diff = (average_diff / max(differences)) * 100
     
-    # Calculate similarity percentage
-    total_pruned_1 = len(pruned_indices_1)
-    total_pruned_2 = len(pruned_indices_2)
-    total_common = len(common_pruned_indices)
-    
-    similarity_percentage = (total_common / total_pruned_1) * 100 if total_pruned_1 > 0 else 0
-    
-    return similarity_percentage, total_pruned_1, total_pruned_2, total_common
+    return percentage_diff
 
-# Example usage
-csv_file_1 = 'zero_indices_14.csv'
-csv_file_2 = 'zero_indices.csv'
 
-similarity, total_1, total_2, common = compare_pruning_schemes(csv_file_1, csv_file_2)
-print(f"Similarity: {similarity:.2f}%")
-print(f"Total pruned in CSV 1: {total_1}")
-print(f"Total pruned in CSV 2: {total_2}")
-print(f"Total common pruned indices: {common}")
+
+# Load CSV files
+csv_file1 = 'zero_indices_14.csv'
+csv_file2 = 'zero_indices.csv'
+data1 = load_csv(csv_file1)
+data2 = load_csv(csv_file2)
+
+# Calculate and print the percentage difference
+percentage_diff = calculate_percentage_difference(data1, data2)
+print("The percentage difference between the two CSV files is %.2f%%" % percentage_diff)
+
