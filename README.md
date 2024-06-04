@@ -13,6 +13,12 @@ Does using a post-training pruning scheme from a model trained on one dataset as
 | FashionMNIST  | 92.48%                                               | 78.04%                  |
 
 
+| Dataset       | Pruning at Init Accuracy (from MNIST post-training) | Random Pruning at Init Accuracy |
+|---------------|------------------------------------------------------|-------------------------|
+| MNIST         | 99.17%                                               | 96.46%                  |
+| FashionMNIST  | 92.57%                                               | 88.69%                  |
+
+
 
 ## Analysis
 
