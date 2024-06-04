@@ -122,7 +122,7 @@ def main():
 
 
     for module, param_name in parameters_to_prune:
-        prune.random_unstructured(module, name=param_name, amount=0.975)
+        prune.random_unstructured(module, name=param_name, amount=0.92)
 
     # print(model.conv1.weight[:8, :4, :1,])
     # print(model.conv2.weight[:8, :4, :1,])
